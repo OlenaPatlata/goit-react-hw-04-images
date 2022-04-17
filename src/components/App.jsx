@@ -1,33 +1,44 @@
 import React, { Component } from 'react';
 import Modal from 'components/Modal/Modal';
+import Searchbar from 'components/Searchbar/Searchbar';
+import ImageInfo from 'components/ImageInfo/ImageInfo';
 
 // import s from './App.module.css';
 
 class App extends Component {
-  state = { showModal: false };
+  state = {
+    showModal: false,
+    searchQuery: '',
+    src: '',
+    alt: '',
+  };
 
-  toggleModal = () => {
+  toggleModal = e => {
     this.setState(({ showModal }) => ({ showModal: !showModal }));
+
+    if (!this.state.showModal) {
+      this.setState({ src: e.target.dataset.src, alt: e.target.alt });
+    }
+  };
+
+  // Две функции для получения из формы текста введенного пользователем в инпут
+  clickButtonForm = e => {
+    this.setState({ searchQuery: e.value });
+  };
+  submitForm = e => {
+    this.setState({ searchQuery: e.value });
   };
 
   render() {
-    const { showModal } = this.state;
+    const { showModal, searchQuery, src, alt } = this.state;
     return (
       <>
-        <button type="button" onClick={this.toggleModal}>
-          Открыть
-        </button>
+        <Searchbar onClick={this.clickButtonForm} onSubmit={this.submitForm} />
+        <ImageInfo searchQuery={searchQuery} onClick={this.toggleModal} />
+
         {showModal && (
           <Modal onClose={this.toggleModal}>
-            <p>
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eligendi
-              doloribus sint officiis expedita fugiat, libero iure asperiores
-              odio nulla neque cum commodi voluptates, voluptatibus ut rerum ea
-              explicabo dignissimos consectetur.
-            </p>
-            <button type="button" onClick={this.toggleModal}>
-              Close Modal
-            </button>
+            <img src={src} alt={alt} />
           </Modal>
         )}
       </>

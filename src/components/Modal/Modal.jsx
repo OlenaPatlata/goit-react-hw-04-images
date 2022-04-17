@@ -11,6 +11,7 @@ class Modal extends Component {
 
   static propTypes = {
     onClose: PropTypes.func.isRequired,
+    children: PropTypes.node,
   };
   // Вешаем слушателя на window
   componentDidMount() {
