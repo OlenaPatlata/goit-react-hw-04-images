@@ -10,22 +10,17 @@ class SearchForm extends Component {
     this.setState({ value: value });
   };
 
-  // Записывает в пропс onSubmit текущее состояние и вызывает функцию очистки формы
+  // Записывает в пропс onSubmit текущее состояние
   handleSubmit = e => {
     e.preventDefault();
     this.props.onSubmit(this.state);
-  };
-
-  // Записывает в пропс onClick текущее состояние и вызывает функцию очистки формы
-  handleClick = e => {
-    this.props.onClick(this.state);
   };
 
   render() {
     return (
       <form className={s.searchForm} onSubmit={this.handleSubmit}>
         <button
-          onClick={this.handleClick}
+          onSubmit={this.handleSubmit}
           type="button"
           className={s.searchForm__button}
         >

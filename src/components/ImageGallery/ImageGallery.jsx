@@ -3,8 +3,8 @@ import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import s from './ImageGallery.module.css';
 
 const ImageGallery = props => {
-  const { data, onClick } = props;
-  const { hits } = data;
+  const { hits, onClick } = props;
+
   return (
     <ul className={s.imageGallery}>
       {hits.map(hit => {

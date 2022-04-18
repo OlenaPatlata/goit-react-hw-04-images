@@ -9,17 +9,10 @@ const getImages = async (searchQuery, page) => {
   const { data } = await axios.get(
     `/?key=${API_KEY}&q=${searchQuery}&page=${page}&${PARAM}`
   );
-  // incrementPage();
+
+  console.log(page);
   console.log(data);
   return data;
 };
-
-// function incrementPage() {
-//   page += 1;
-// }
-
-// function resetPage() {
-//   page = 1;
-// }
 
 export { getImages };

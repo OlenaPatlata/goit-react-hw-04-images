@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import ImageGallery from 'components/ImageGallery/ImageGallery';
 import Loader from 'components/Loader/Loader';
-import Button from 'components/Button/Button';
+
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { getImages } from 'services/api';
 
 const Status = {
@@ -13,30 +14,70 @@ const Status = {
 
 class ImageInfo extends Component {
   state = {
-    page: 1,
     status: Status.IDLE,
     error: null,
-    data: {},
+    totalHits: null,
+    hits: [],
   };
 
   // Асинхронная функция, которая сначала сравнивает предыдущий и следующий пропсы и если они отличаются, делает запрос на АРI
   async componentDidUpdate(prevProps, prevState) {
     const prevSearchQuery = prevProps.searchQuery;
     const nextSearchQuery = this.props.searchQuery;
+    const prevPage = prevProps.page;
+    const nextPage = this.props.page;
 
     if (
-      prevSearchQuery.trim() !== nextSearchQuery.trim() &&
-      nextSearchQuery.trim().length > 0
+      (prevSearchQuery.trim() !== nextSearchQuery.trim() &&
+        nextSearchQuery.trim().length > 0) ||
+      nextPage > prevPage
     ) {
-      this.setState({ status: Status.PENDING });
-      await getImages(nextSearchQuery, this.state.page)
-        .then(data => this.setState({ data: data, status: Status.RESOLVED }))
-        .catch(error => this.setState({ error, status: Status.REJECTED }));
+      this.setState({
+        status: Status.PENDING,
+      });
+      this.props.moreButtonHide();
+      try {
+        const { totalHits, hits } = await getImages(nextSearchQuery, prevPage);
+        if (totalHits === 0) {
+          Notify.failure(
+            `Sorry, images with title ${nextSearchQuery} missing. Try other words.`
+          );
+          this.props.moreButtonHide();
+        }
+
+        if (prevPage > 1) {
+          this.setState({
+            hits: [...prevState.hits, ...hits],
+            status: Status.RESOLVED,
+            totalHits: totalHits,
+          });
+        }
+        if (prevPage === 1) {
+          this.setState({
+            hits: hits,
+            status: Status.RESOLVED,
+            totalHits: totalHits,
+          });
+        }
+        if (totalHits <= 12 || totalHits - hits.length <= 12) {
+          this.props.moreButtonHide();
+        }
+        if (totalHits - hits.length > 12) {
+          this.props.moreButtonRender();
+        }
+      } catch (error) {
+        this.setState({
+          error,
+          status: Status.REJECTED,
+        });
+        this.props.moreButtonHide();
+        Notify.failure(`Sorry, something went wrong.`);
+      }
     }
   }
 
   render() {
-    const { data, error, status } = this.state;
+    const { hits, error, status } = this.state;
     if (status === 'idle') {
       return <div> </div>;
     }
@@ -44,13 +85,12 @@ class ImageInfo extends Component {
       return <Loader />;
     }
     if (status === 'rejected') {
-      return <div>Error</div>;
+      return <div></div>;
     }
     if (status === 'resolved') {
       return (
         <>
-          <ImageGallery data={data} onClick={this.props.onClick} />
-          <Button />
+          <ImageGallery hits={hits} onClick={this.props.onClick} />
         </>
       );
     }
