@@ -4,6 +4,7 @@ import Loader from 'components/Loader/Loader';
 
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { getImages } from 'services/api';
+import PropTypes from 'prop-types';
 
 const Status = {
   IDLE: 'idle',
@@ -18,6 +19,13 @@ class ImageInfo extends Component {
     error: null,
     totalHits: null,
     hits: [],
+  };
+  static propTypes = {
+    onClick: PropTypes.func.isRequired,
+    searchQuery: PropTypes.string.isRequired,
+    page: PropTypes.number.isRequired,
+    moreButtonRender: PropTypes.func.isRequired,
+    moreButtonHide: PropTypes.func.isRequired,
   };
 
   // Асинхронная функция, которая сначала сравнивает предыдущий и следующий пропсы и если они отличаются, делает запрос на АРI
@@ -42,9 +50,13 @@ class ImageInfo extends Component {
           Notify.failure(
             `Sorry, images with title ${nextSearchQuery} missing. Try other words.`
           );
+        }
+        if (totalHits === this.state.hits.length + hits.length) {
           this.props.moreButtonHide();
         }
-
+        if (totalHits > this.state.hits.length + hits.length) {
+          this.props.moreButtonRender();
+        }
         if (nextPage > 1) {
           this.setState({
             hits: [...prevState.hits, ...hits],
@@ -59,12 +71,6 @@ class ImageInfo extends Component {
             totalHits: totalHits,
           });
         }
-        if (totalHits <= 12 || totalHits - hits.length <= 12) {
-          this.props.moreButtonHide();
-        }
-        if (totalHits - hits.length > 12) {
-          this.props.moreButtonRender();
-        }
       } catch (error) {
         this.setState({
           error,
@@ -77,12 +83,17 @@ class ImageInfo extends Component {
   }
 
   render() {
-    const { hits, error, status } = this.state;
+    const { hits, status } = this.state;
     if (status === 'idle') {
       return <div> </div>;
     }
     if (status === 'pending') {
-      return <Loader />;
+      return (
+        <>
+          <ImageGallery hits={hits} onClick={this.props.onClick} />
+          <Loader />
+        </>
+      );
     }
     if (status === 'rejected') {
       return <div></div>;

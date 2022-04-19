@@ -32,10 +32,10 @@ class App extends Component {
   };
 
   // Функция для показа или скрытия кнопки "Загрузить еще"
-  moreButtonRender = e => {
+  moreButtonRender = () => {
     this.setState({ moreVisible: true });
   };
-  moreButtonHide = e => {
+  moreButtonHide = () => {
     this.setState({ moreVisible: false });
   };
 

@@ -1,5 +1,7 @@
 import React from 'react';
 import s from './Button.module.css';
+import PropTypes from 'prop-types';
+
 const Button = ({ onClick }) => {
   return (
     <div className={s.wrapper}>
@@ -9,5 +11,7 @@ const Button = ({ onClick }) => {
     </div>
   );
 };
-
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired,
+};
 export default Button;

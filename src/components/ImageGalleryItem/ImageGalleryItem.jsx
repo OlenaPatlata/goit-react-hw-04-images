@@ -1,5 +1,6 @@
 import React from 'react';
 import s from './ImageGalleryItem.module.css';
+import PropTypes from 'prop-types';
 
 const ImageGalleryItem = props => {
   const { hit, onClick } = props;
@@ -14,6 +15,10 @@ const ImageGalleryItem = props => {
       />
     </li>
   );
+};
+ImageGalleryItem.propTypes = {
+  hit: PropTypes.shape().isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default ImageGalleryItem;

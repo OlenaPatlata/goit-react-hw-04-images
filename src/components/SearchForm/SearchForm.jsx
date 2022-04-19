@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
 import s from './SearchForm.module.css';
+import PropTypes from 'prop-types';
 
 class SearchForm extends Component {
   state = { value: '' };
+
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+  };
 
   // Записывает в состояние class SearchForm текст введенный в инпут
   handleChange = e => {
