@@ -29,18 +29,14 @@ class App extends Component {
   submitForm = e => {
     this.setState({ page: 1 });
     this.setState({ searchQuery: e.value });
-
-    console.log(this.state.page);
   };
 
   // Функция для показа или скрытия кнопки "Загрузить еще"
   moreButtonRender = e => {
     this.setState({ moreVisible: true });
-    console.log('dddddd');
   };
   moreButtonHide = e => {
     this.setState({ moreVisible: false });
-    console.log('lllll');
   };
 
   clickMoreButton = e => {

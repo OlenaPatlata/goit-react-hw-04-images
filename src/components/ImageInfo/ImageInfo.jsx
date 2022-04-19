@@ -37,7 +37,7 @@ class ImageInfo extends Component {
       });
       this.props.moreButtonHide();
       try {
-        const { totalHits, hits } = await getImages(nextSearchQuery, prevPage);
+        const { totalHits, hits } = await getImages(nextSearchQuery, nextPage);
         if (totalHits === 0) {
           Notify.failure(
             `Sorry, images with title ${nextSearchQuery} missing. Try other words.`
@@ -45,14 +45,14 @@ class ImageInfo extends Component {
           this.props.moreButtonHide();
         }
 
-        if (prevPage > 1) {
+        if (nextPage > 1) {
           this.setState({
             hits: [...prevState.hits, ...hits],
             status: Status.RESOLVED,
             totalHits: totalHits,
           });
         }
-        if (prevPage === 1) {
+        if (nextPage === 1) {
           this.setState({
             hits: hits,
             status: Status.RESOLVED,

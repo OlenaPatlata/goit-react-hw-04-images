@@ -9,9 +9,6 @@ const getImages = async (searchQuery, page) => {
   const { data } = await axios.get(
     `/?key=${API_KEY}&q=${searchQuery}&page=${page}&${PARAM}`
   );
-
-  console.log(page);
-  console.log(data);
   return data;
 };
 
