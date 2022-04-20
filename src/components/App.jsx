@@ -26,7 +26,6 @@ const App = () => {
   //Функция для получения из формы текста введенного пользователем в инпут
   const submitForm = value => {
     setPage(1);
-    console.log(page);
     setSearchQuery(value);
   };
 

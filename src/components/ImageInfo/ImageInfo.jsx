@@ -24,26 +24,35 @@ const ImageInfo = ({
   const [error, setError] = useState(null);
   const [totalHits, setTotalHits] = useState(null);
   const [hits, setHits] = useState([]);
+  const [loaderOff, setLoaderOff] = useState(false);
 
-  // Асинхронная функция, которая сначала сравнивает предыдущий и следующий пропсы и если они отличаются, делает запрос на АРI
+  const openLoaderOff = () => {
+    setLoaderOff(true);
+  };
+  const closeLoaderOff = () => {
+    setLoaderOff(false);
+  };
+
   useEffect(() => {
-    setStatus(Status.IDLE);
     if (searchQuery) {
       (async () => {
         try {
-          // setStatus(Status.PENDING);
+          openLoaderOff();
           const { totalHits: totalHitsNew, hits: newHits } = await getImages(
             searchQuery,
             page
           );
-
+          closeLoaderOff();
           if (totalHitsNew === 0) {
-            setStatus(Status.IDLE);
+            moreButtonHide();
             Notify.failure(
               `Sorry, images with title ${searchQuery} missing. Try other words.`
             );
           }
-          if (totalHitsNew === hits.length + newHits.length) {
+          if (
+            totalHitsNew === hits.length + newHits.length ||
+            (totalHitsNew > 0 && totalHitsNew <= 12)
+          ) {
             moreButtonHide();
           }
           if (totalHitsNew > hits.length + newHits.length) {
@@ -61,7 +70,6 @@ const ImageInfo = ({
         } catch (error) {
           setError(error);
           setStatus(Status.REJECTED);
-
           moreButtonHide();
           Notify.failure(`Sorry, something went wrong.`);
         }
@@ -72,14 +80,9 @@ const ImageInfo = ({
   return (
     <>
       {Status.IDLE && <div></div>}
-
       {Status.REJECTED && <div></div>}
-      {Status.RESOLVED && (
-        <>
-          <ImageGallery hits={hits} onClick={onClick} />
-        </>
-      )}
-      {Status.PENDING && <Loader />}
+      {Status.RESOLVED && <ImageGallery hits={hits} onClick={onClick} />}
+      {loaderOff ? <Loader /> : null}
     </>
   );
 };
