@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import ImageGallery from 'components/ImageGallery/ImageGallery';
 import Loader from 'components/Loader/Loader';
 
@@ -13,99 +13,83 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-class ImageInfo extends Component {
-  state = {
-    status: Status.IDLE,
-    error: null,
-    totalHits: null,
-    hits: [],
-  };
-  static propTypes = {
-    onClick: PropTypes.func.isRequired,
-    searchQuery: PropTypes.string.isRequired,
-    page: PropTypes.number.isRequired,
-    moreButtonRender: PropTypes.func.isRequired,
-    moreButtonHide: PropTypes.func.isRequired,
-  };
+const ImageInfo = ({
+  onClick,
+  searchQuery,
+  page,
+  moreButtonRender,
+  moreButtonHide,
+}) => {
+  const [status, setStatus] = useState(Status.IDLE);
+  const [error, setError] = useState(null);
+  const [totalHits, setTotalHits] = useState(null);
+  const [hits, setHits] = useState([]);
 
   // Асинхронная функция, которая сначала сравнивает предыдущий и следующий пропсы и если они отличаются, делает запрос на АРI
-  async componentDidUpdate(prevProps, prevState) {
-    const prevSearchQuery = prevProps.searchQuery;
-    const nextSearchQuery = this.props.searchQuery;
-    const prevPage = prevProps.page;
-    const nextPage = this.props.page;
-
-    if (
-      (prevSearchQuery.trim() !== nextSearchQuery.trim() &&
-        nextSearchQuery.trim().length > 0) ||
-      nextPage > prevPage
-    ) {
-      this.setState({
-        status: Status.PENDING,
-      });
-      this.props.moreButtonHide();
-      try {
-        const { totalHits, hits } = await getImages(nextSearchQuery, nextPage);
-        if (totalHits === 0) {
-          Notify.failure(
-            `Sorry, images with title ${nextSearchQuery} missing. Try other words.`
+  useEffect(() => {
+    setStatus(Status.IDLE);
+    if (searchQuery) {
+      (async () => {
+        try {
+          // setStatus(Status.PENDING);
+          const { totalHits: totalHitsNew, hits: newHits } = await getImages(
+            searchQuery,
+            page
           );
-        }
-        if (totalHits === this.state.hits.length + hits.length) {
-          this.props.moreButtonHide();
-        }
-        if (totalHits > this.state.hits.length + hits.length) {
-          this.props.moreButtonRender();
-        }
-        if (nextPage > 1) {
-          this.setState({
-            hits: [...prevState.hits, ...hits],
-            status: Status.RESOLVED,
-            totalHits: totalHits,
-          });
-        }
-        if (nextPage === 1) {
-          this.setState({
-            hits: hits,
-            status: Status.RESOLVED,
-            totalHits: totalHits,
-          });
-        }
-      } catch (error) {
-        this.setState({
-          error,
-          status: Status.REJECTED,
-        });
-        this.props.moreButtonHide();
-        Notify.failure(`Sorry, something went wrong.`);
-      }
-    }
-  }
 
-  render() {
-    const { hits, status } = this.state;
-    if (status === 'idle') {
-      return <div> </div>;
+          if (totalHitsNew === 0) {
+            setStatus(Status.IDLE);
+            Notify.failure(
+              `Sorry, images with title ${searchQuery} missing. Try other words.`
+            );
+          }
+          if (totalHitsNew === hits.length + newHits.length) {
+            moreButtonHide();
+          }
+          if (totalHitsNew > hits.length + newHits.length) {
+            moreButtonRender();
+          }
+          if (page > 1) {
+            setHits([...hits, ...newHits]);
+            setStatus(Status.RESOLVED);
+          }
+          if (page === 1) {
+            setHits(newHits);
+            setStatus(Status.RESOLVED);
+            setTotalHits(totalHitsNew);
+          }
+        } catch (error) {
+          setError(error);
+          setStatus(Status.REJECTED);
+
+          moreButtonHide();
+          Notify.failure(`Sorry, something went wrong.`);
+        }
+      })();
     }
-    if (status === 'pending') {
-      return (
+  }, [searchQuery, page]);
+
+  return (
+    <>
+      {Status.IDLE && <div></div>}
+
+      {Status.REJECTED && <div></div>}
+      {Status.RESOLVED && (
         <>
-          <ImageGallery hits={hits} onClick={this.props.onClick} />
-          <Loader />
+          <ImageGallery hits={hits} onClick={onClick} />
         </>
-      );
-    }
-    if (status === 'rejected') {
-      return <div></div>;
-    }
-    if (status === 'resolved') {
-      return (
-        <>
-          <ImageGallery hits={hits} onClick={this.props.onClick} />
-        </>
-      );
-    }
-  }
-}
+      )}
+      {Status.PENDING && <Loader />}
+    </>
+  );
+};
+
+ImageInfo.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  searchQuery: PropTypes.string.isRequired,
+  page: PropTypes.number.isRequired,
+  moreButtonRender: PropTypes.func.isRequired,
+  moreButtonHide: PropTypes.func.isRequired,
+};
 
 export default ImageInfo;
