@@ -11,5 +11,12 @@ const getImages = async (searchQuery, page) => {
   );
   return data;
 };
+const getImageById = async id => {
+  try {
+    const { data } = await axios.get(`/?key=${API_KEY}&id=${id}`);
+    console.log('~ data', data);
+    return { src: data.hits[0].largeImageURL, alt: data.hits[0].tags };
+  } catch (error) {}
+};
 
-export { getImages };
+export { getImages, getImageById };

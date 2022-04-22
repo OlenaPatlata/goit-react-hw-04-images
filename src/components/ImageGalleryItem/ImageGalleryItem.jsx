@@ -1,13 +1,24 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import s from './ImageGalleryItem.module.css';
 import PropTypes from 'prop-types';
 
 const ImageGalleryItem = props => {
   const { hit, onClick } = props;
+  const location = useLocation();
   return (
     <li className={s.imageGalleryItem} id={hit.id} onClick={onClick}>
-      <Link to={{ pathname: `/images/search/${hit.id}` }}>
+      <Link
+        to={{
+          pathname: `${location.pathname}/${hit.id}`,
+        }}
+        state={{
+          ...location,
+          src: hit.largeImageURL,
+          from: location.pathname,
+          alt: hit.tags,
+        }}
+      >
         <img
           src={hit.webformatURL}
           alt={hit.tags}
