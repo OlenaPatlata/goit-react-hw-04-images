@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+
 import ImageGallery from 'components/ImageGallery/ImageGallery';
 import Loader from 'components/Loader/Loader';
 
@@ -34,6 +36,7 @@ const ImageInfo = ({
   };
 
   useEffect(() => {
+    console.log(1111111);
     if (searchQuery) {
       (async () => {
         try {
